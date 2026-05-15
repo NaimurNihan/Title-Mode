@@ -146,51 +146,45 @@ export default function MovieTracker() {
       {/* Header */}
       <div className="sticky top-0 z-20 bg-card border-b border-border shadow-sm">
         <div className="max-w-[1400px] mx-auto px-4 py-3">
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {/* LEFT: Logo + Title + Stats */}
+            <div className="flex items-center gap-3 shrink-0">
               <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                 <Film className="w-4 h-4 text-primary-foreground" />
               </div>
-              <div>
-                <h1 className="text-lg font-bold text-foreground leading-tight">Movie Names</h1>
-                <p className="text-xs text-muted-foreground">{madeCount}/{totalCount} made</p>
+              <h1 className="text-lg font-bold text-foreground">Movie Names</h1>
+              <span className="bg-accent/15 text-accent px-2.5 py-1 rounded-md text-xs font-semibold">{madeCount} Made</span>
+              <span className="bg-muted text-muted-foreground px-2.5 py-1 rounded-md text-xs font-medium">{totalCount - madeCount} Pending</span>
+            </div>
+
+            {/* RIGHT: Search + Add */}
+            <div className="flex items-center gap-2 ml-auto">
+              <div className="relative w-72">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <input
+                  type="search"
+                  className="w-full pl-9 pr-8 py-2 text-sm bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent placeholder:text-muted-foreground"
+                  placeholder="Search by name or number..."
+                  value={searchQuery}
+                  onChange={e => handleSearch(e.target.value)}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={clearSearch}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
               </div>
+              <button
+                onClick={addRow}
+                className="flex items-center gap-1.5 px-3 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+                Add Row
+              </button>
             </div>
-
-            {/* Search */}
-            <div className="flex-1 min-w-[240px] max-w-md relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-              <input
-                type="search"
-                className="w-full pl-9 pr-8 py-2 text-sm bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent placeholder:text-muted-foreground"
-                placeholder="Search by name or number..."
-                value={searchQuery}
-                onChange={e => handleSearch(e.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  onClick={clearSearch}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              )}
-            </div>
-
-            {/* Stats */}
-            <div className="flex items-center gap-3 text-xs text-muted-foreground ml-auto">
-              <span className="bg-accent/15 text-accent px-2 py-1 rounded-md font-medium">{madeCount} Made</span>
-              <span className="bg-muted px-2 py-1 rounded-md">{totalCount - madeCount} Pending</span>
-            </div>
-
-            {/* Add Button */}
-            <button
-              onClick={addRow}
-              className="flex items-center gap-1.5 px-3 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              Add Row
-            </button>
           </div>
         </div>
       </div>
