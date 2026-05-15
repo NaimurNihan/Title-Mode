@@ -246,8 +246,7 @@ export default function MovieTracker() {
                       {lang}
                     </th>
                   ))}
-                  <th className="text-center px-2 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-20">MADE</th>
-                  <th className="w-8 px-1 py-3"></th>
+                  <th className="text-center px-2 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-16"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -278,30 +277,30 @@ export default function MovieTracker() {
                         />
                       </td>
                     ))}
-                    <td className="px-3 py-2 text-center">
-                      <button
-                        onClick={() => toggleMade(entry.id)}
-                        className={`inline-flex items-center justify-center w-7 h-7 rounded-md transition-all ${
-                          entry.made
-                            ? "bg-accent/20 text-accent hover:bg-accent/30"
-                            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                        }`}
-                        title={entry.made ? "Mark as not made" : "Mark as made"}
-                      >
-                        {entry.made
-                          ? <CheckCircle2 className="w-4 h-4" />
-                          : <Circle className="w-4 h-4" />
-                        }
-                      </button>
-                    </td>
                     <td className="px-2 py-2">
-                      <button
-                        onClick={() => deleteEntry(entry.id)}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
-                        title="Move to trash"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                      <div className="flex items-center justify-center gap-1">
+                        <button
+                          onClick={() => toggleMade(entry.id)}
+                          className={`inline-flex items-center justify-center w-7 h-7 rounded-md transition-all ${
+                            entry.made
+                              ? "bg-accent/20 text-accent hover:bg-accent/30"
+                              : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                          }`}
+                          title={entry.made ? "Mark as not made" : "Mark as made"}
+                        >
+                          {entry.made
+                            ? <CheckCircle2 className="w-4 h-4" />
+                            : <Circle className="w-4 h-4" />
+                          }
+                        </button>
+                        <button
+                          onClick={() => deleteEntry(entry.id)}
+                          className="opacity-0 group-hover:opacity-100 inline-flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                          title="Move to trash"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
