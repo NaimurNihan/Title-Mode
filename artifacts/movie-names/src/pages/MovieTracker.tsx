@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Plus, Trash2, Copy, ClipboardPaste, CheckCircle2, Circle, Film, X } from "lucide-react";
+import { Search, Plus, Trash2, Copy, ClipboardPaste, CheckCircle2, Circle, Film, X, RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const LANGUAGES = ["ARABIC", "GERMAN", "ENGLISH", "SPANISH", "FRENCH"] as const;
@@ -21,6 +21,7 @@ function formatNumber(n: number): string {
 }
 
 const STORAGE_KEY = "movie-names-data";
+const TRASH_KEY = "movie-names-trash";
 
 function loadData(): MovieEntry[] {
   try {
@@ -33,31 +34,43 @@ function loadData(): MovieEntry[] {
   ];
 }
 
+function loadTrash(): MovieEntry[] {
+  try {
+    const raw = localStorage.getItem(TRASH_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return [];
+}
+
 function saveData(entries: MovieEntry[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
 }
 
+function saveTrash(entries: MovieEntry[]) {
+  localStorage.setItem(TRASH_KEY, JSON.stringify(entries));
+}
+
 export default function MovieTracker() {
   const [entries, setEntries] = useState<MovieEntry[]>(loadData);
+  const [trash, setTrash] = useState<MovieEntry[]>(loadTrash);
   const [searchQuery, setSearchQuery] = useState("");
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
+  const [trashOpen, setTrashOpen] = useState(false);
   const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
   const { toast } = useToast();
 
-  useEffect(() => {
-    saveData(entries);
-  }, [entries]);
+  useEffect(() => { saveData(entries); }, [entries]);
+  useEffect(() => { saveTrash(trash); }, [trash]);
 
   const addRow = useCallback(() => {
     setEntries(prev => {
       const nextNum = prev.length + 1;
-      const newEntry: MovieEntry = {
+      return [...prev, {
         id: generateId(),
         number: formatNumber(nextNum),
         names: { ARABIC: "", GERMAN: "", ENGLISH: "", SPANISH: "", FRENCH: "" },
         made: false,
-      };
-      return [...prev, newEntry];
+      }];
     });
   }, []);
 
@@ -65,12 +78,46 @@ export default function MovieTracker() {
     setEntries(prev => prev.map(e => e.id === id ? { ...e, names: { ...e.names, [lang]: value } } : e));
   }, []);
 
+  // Move to trash instead of permanently deleting
   const deleteEntry = useCallback((id: string) => {
     setEntries(prev => {
+      const target = prev.find(e => e.id === id);
+      if (target) {
+        setTrash(t => [target, ...t]);
+        toast({ description: `Row ${target.number} moved to trash` });
+      }
       const filtered = prev.filter(e => e.id !== id);
       return filtered.map((e, i) => ({ ...e, number: formatNumber(i + 1) }));
     });
-  }, []);
+  }, [toast]);
+
+  // Recover from trash
+  const recoverEntry = useCallback((id: string) => {
+    setTrash(prev => {
+      const target = prev.find(e => e.id === id);
+      if (target) {
+        setEntries(e => {
+          const nextNum = e.length + 1;
+          const recovered = { ...target, number: formatNumber(nextNum) };
+          toast({ description: `Row recovered as ${recovered.number}` });
+          return [...e, recovered];
+        });
+      }
+      return prev.filter(e => e.id !== id);
+    });
+  }, [toast]);
+
+  // Permanently delete from trash
+  const permanentDelete = useCallback((id: string) => {
+    setTrash(prev => prev.filter(e => e.id !== id));
+    toast({ description: "Permanently deleted" });
+  }, [toast]);
+
+  // Empty entire trash
+  const emptyTrash = useCallback(() => {
+    setTrash([]);
+    toast({ description: "Trash emptied" });
+  }, [toast]);
 
   const copyCell = useCallback(async (text: string) => {
     try {
@@ -101,10 +148,7 @@ export default function MovieTracker() {
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
-    if (!query.trim()) {
-      setHighlightedId(null);
-      return;
-    }
+    if (!query.trim()) { setHighlightedId(null); return; }
     const q = query.trim().toLowerCase();
     const found = entries.find(e => {
       if (e.number.toLowerCase().includes(q)) return true;
@@ -125,10 +169,7 @@ export default function MovieTracker() {
     }
   }, [entries]);
 
-  const clearSearch = () => {
-    setSearchQuery("");
-    setHighlightedId(null);
-  };
+  const clearSearch = () => { setSearchQuery(""); setHighlightedId(null); };
 
   const filteredEntries = searchQuery.trim()
     ? entries.filter(e => {
@@ -141,8 +182,14 @@ export default function MovieTracker() {
   const totalCount = entries.length;
   const madeCount = entries.filter(e => e.made).length;
 
+  // Label text for a trash entry
+  function trashLabel(e: MovieEntry) {
+    const name = LANGUAGES.map(l => e.names[l]).find(v => v.trim()) || "(empty)";
+    return `${e.number} — ${name}`;
+  }
+
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pb-32">
       {/* Header */}
       <div className="sticky top-0 z-20 bg-card border-b border-border shadow-sm">
         <div className="max-w-[1400px] mx-auto px-4 py-3">
@@ -169,10 +216,7 @@ export default function MovieTracker() {
                   onChange={e => handleSearch(e.target.value)}
                 />
                 {searchQuery && (
-                  <button
-                    onClick={clearSearch}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
-                  >
+                  <button onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground">
                     <X className="w-3 h-3" />
                   </button>
                 )}
@@ -212,23 +256,16 @@ export default function MovieTracker() {
                     key={entry.id}
                     ref={el => { rowRefs.current[entry.id] = el; }}
                     className={`group transition-colors ${
-                      entry.made
-                        ? "bg-accent/5 hover:bg-accent/10"
-                        : "hover:bg-secondary/30"
+                      entry.made ? "bg-accent/5 hover:bg-accent/10" : "hover:bg-secondary/30"
                     } ${highlightedId === entry.id ? "bg-primary/8" : ""}`}
                   >
-                    {/* Number */}
                     <td className="px-3 py-2">
                       <span className={`inline-flex items-center justify-center w-10 h-7 rounded-md text-xs font-bold tabular-nums ${
-                        entry.made
-                          ? "bg-accent/20 text-accent"
-                          : "bg-secondary text-muted-foreground"
+                        entry.made ? "bg-accent/20 text-accent" : "bg-secondary text-muted-foreground"
                       }`}>
                         {entry.number}
                       </span>
                     </td>
-
-                    {/* Language cells */}
                     {LANGUAGES.map(lang => (
                       <td key={lang} className="px-2 py-2">
                         <CellInput
@@ -241,8 +278,6 @@ export default function MovieTracker() {
                         />
                       </td>
                     ))}
-
-                    {/* Made toggle */}
                     <td className="px-3 py-2 text-center">
                       <button
                         onClick={() => toggleMade(entry.id)}
@@ -259,20 +294,17 @@ export default function MovieTracker() {
                         }
                       </button>
                     </td>
-
-                    {/* Delete */}
                     <td className="px-2 py-2">
                       <button
                         onClick={() => deleteEntry(entry.id)}
                         className="opacity-0 group-hover:opacity-100 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
-                        title="Delete row"
+                        title="Move to trash"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </td>
                   </tr>
                 ))}
-
                 {filteredEntries.length === 0 && (
                   <tr>
                     <td colSpan={8} className="text-center py-12 text-muted-foreground text-sm">
@@ -284,16 +316,78 @@ export default function MovieTracker() {
             </table>
           </div>
         </div>
+      </div>
 
-        {/* Add row footer button */}
-        <div className="flex justify-center mt-4">
+      {/* Trash Box — fixed bottom-left */}
+      <div className="fixed bottom-4 left-4 z-40 w-80">
+        <div className={`bg-card border border-border rounded-xl shadow-lg overflow-hidden transition-all ${trashOpen ? "" : ""}`}>
+          {/* Trash header */}
           <button
-            onClick={addRow}
-            className="flex items-center gap-2 px-6 py-2.5 bg-secondary hover:bg-secondary/70 border border-border text-sm font-medium text-foreground rounded-xl transition-colors"
+            onClick={() => setTrashOpen(o => !o)}
+            className="w-full flex items-center gap-2 px-4 py-3 hover:bg-secondary/50 transition-colors"
           >
-            <Plus className="w-4 h-4" />
-            Add New Row
+            <div className="relative">
+              <Trash2 className="w-4 h-4 text-muted-foreground" />
+              {trash.length > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
+                  {trash.length > 9 ? "9+" : trash.length}
+                </span>
+              )}
+            </div>
+            <span className="text-sm font-medium text-foreground flex-1 text-left">
+              Trash {trash.length > 0 ? `(${trash.length})` : ""}
+            </span>
+            {trash.length > 0 && !trashOpen && (
+              <span className="text-xs text-muted-foreground">Click to recover</span>
+            )}
+            {trashOpen ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronUp className="w-4 h-4 text-muted-foreground" />}
           </button>
+
+          {/* Trash list */}
+          {trashOpen && (
+            <div className="border-t border-border">
+              {trash.length === 0 ? (
+                <p className="text-center text-xs text-muted-foreground py-4">Trash is empty</p>
+              ) : (
+                <>
+                  <div className="max-h-60 overflow-y-auto divide-y divide-border">
+                    {trash.map(e => (
+                      <div key={e.id} className="flex items-center gap-2 px-3 py-2 hover:bg-secondary/30 group/trash">
+                        <span className="text-xs font-mono text-muted-foreground w-8 shrink-0">{e.number}</span>
+                        <span className="text-xs text-foreground flex-1 truncate">
+                          {LANGUAGES.map(l => e.names[l]).find(v => v.trim()) || <span className="text-muted-foreground italic">empty</span>}
+                        </span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          <button
+                            onClick={() => recoverEntry(e.id)}
+                            className="p-1 rounded text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
+                            title="Recover"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => permanentDelete(e.id)}
+                            className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                            title="Delete permanently"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="border-t border-border px-3 py-2 flex justify-end">
+                    <button
+                      onClick={emptyTrash}
+                      className="text-xs text-destructive hover:text-destructive/80 font-medium transition-colors"
+                    >
+                      Empty Trash
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -327,14 +421,13 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: Cell
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Floating toolbar — appears above the cell */}
+      {/* Floating toolbar */}
       {(hovered || focused) && (
         <div className="absolute -top-8 left-0 z-30 flex items-center gap-0.5 bg-card border border-border rounded-md shadow-md px-1 py-0.5">
           <button
             type="button"
             onMouseDown={e => { e.preventDefault(); onCopy(); }}
             className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            title="Copy"
             tabIndex={-1}
           >
             <Copy className="w-3 h-3" />
@@ -347,7 +440,6 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: Cell
                 type="button"
                 onMouseDown={e => { e.preventDefault(); onPaste(); }}
                 className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                title="Paste"
                 tabIndex={-1}
               >
                 <ClipboardPaste className="w-3 h-3" />
@@ -360,7 +452,6 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: Cell
                     type="button"
                     onMouseDown={e => { e.preventDefault(); onClear(); }}
                     className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                    title="Clear"
                     tabIndex={-1}
                   >
                     <X className="w-3 h-3" />
@@ -373,7 +464,7 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: Cell
         </div>
       )}
 
-      {/* Textarea — auto grows tall to show full name */}
+      {/* Auto-grow textarea */}
       <textarea
         ref={textareaRef}
         value={value}
@@ -383,9 +474,7 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: Cell
         onBlur={() => setFocused(false)}
         disabled={disabled}
         className={`w-full px-2.5 py-2 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring resize-none overflow-hidden leading-snug ${
-          focused
-            ? "border-ring bg-card"
-            : "border-border bg-background hover:border-muted-foreground/40"
+          focused ? "border-ring bg-card" : "border-border bg-background hover:border-muted-foreground/40"
         } ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
       />
     </div>
