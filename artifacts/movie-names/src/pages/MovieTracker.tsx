@@ -318,7 +318,14 @@ interface CellInputProps {
 function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: CellInputProps) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
-  const showToolbar = (hovered || focused) && !disabled || (hovered && !disabled);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const el = textareaRef.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+  }, [value]);
 
   return (
     <div
@@ -372,16 +379,16 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: Cell
         </div>
       )}
 
-      {/* Input — full width, no icons inside */}
-      <input
-        type="text"
+      {/* Textarea — auto grows tall to show full name */}
+      <textarea
+        ref={textareaRef}
         value={value}
-        title={value || undefined}
+        rows={1}
         onChange={e => !disabled && onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         disabled={disabled}
-        className={`w-full px-2.5 py-2 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring ${
+        className={`w-full px-2.5 py-2 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring resize-none overflow-hidden leading-snug ${
           focused
             ? "border-ring bg-card"
             : "border-border bg-background hover:border-muted-foreground/40"
