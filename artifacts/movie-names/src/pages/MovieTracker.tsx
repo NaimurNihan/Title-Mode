@@ -520,7 +520,6 @@ function TitleCell({ value, made, onCopy, isRtl }: TitleCellProps) {
 }
 
 function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made, isRtl }: CellInputProps) {
-  const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -531,51 +530,16 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made, 
     el.style.height = el.scrollHeight + "px";
   }, [value]);
 
-  return (
-    <div
-      className="relative group/cell"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {/* Floating toolbar */}
-      {(hovered || focused) && (
-        <div className="absolute -top-8 left-0 z-30 flex items-center gap-0.5 bg-card border border-border rounded-md shadow-md px-1 py-0.5">
-          <button
-            type="button"
-            onMouseDown={e => { e.preventDefault(); onCopy(); }}
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            tabIndex={-1}
-          >
-            <Copy className="w-3 h-3" />
-            <span>Copy</span>
-          </button>
-          {!disabled && (
-            <>
-              <div className="w-px h-3 bg-border" />
-              <button
-                type="button"
-                onMouseDown={e => { e.preventDefault(); onPaste(); }}
-                className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                tabIndex={-1}
-              >
-                <ClipboardPaste className="w-3 h-3" />
-                <span>Paste</span>
-              </button>
-              <div className="w-px h-3 bg-border" />
-              <button
-                type="button"
-                onMouseDown={e => { e.preventDefault(); onClear(); }}
-                className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                tabIndex={-1}
-              >
-                <X className="w-3 h-3" />
-                <span>Cancel</span>
-              </button>
-            </>
-          )}
-        </div>
-      )}
+  const borderClass = made
+    ? "border-accent/30"
+    : focused
+      ? "border-ring ring-2 ring-ring/20"
+      : "border-border";
 
+  const bgClass = made ? "bg-accent/10" : "bg-background";
+
+  return (
+    <div className={`rounded-lg border transition-all ${borderClass} ${bgClass} ${disabled ? "opacity-60" : ""}`}>
       {/* Auto-grow textarea */}
       <textarea
         ref={textareaRef}
@@ -586,14 +550,45 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made, 
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         disabled={disabled}
-        className={`w-full px-2.5 py-2 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 resize-none overflow-hidden leading-snug ${isRtl ? "text-right" : ""} ${
-          made
-            ? "border-accent/30 bg-accent/10 text-accent focus:ring-accent/20 focus:border-accent/50"
-            : focused
-              ? "border-ring bg-card"
-              : "border-border bg-background hover:border-muted-foreground/40"
+        className={`w-full px-2.5 py-2 text-sm bg-transparent focus:outline-none resize-none overflow-hidden leading-snug ${isRtl ? "text-right" : ""} ${
+          made ? "text-accent" : "text-foreground"
         } ${disabled ? "cursor-not-allowed" : ""}`}
       />
+
+      {/* Bottom toolbar — only when focused */}
+      {focused && !disabled && (
+        <div className="flex border-t border-border">
+          <button
+            type="button"
+            onMouseDown={e => { e.preventDefault(); onCopy(); }}
+            className="flex-1 flex items-center justify-center gap-1 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            tabIndex={-1}
+          >
+            <Copy className="w-3 h-3" />
+            <span>Copy</span>
+          </button>
+          <div className="w-px bg-border" />
+          <button
+            type="button"
+            onMouseDown={e => { e.preventDefault(); onPaste(); }}
+            className="flex-1 flex items-center justify-center gap-1 py-1 text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            tabIndex={-1}
+          >
+            <ClipboardPaste className="w-3 h-3" />
+            <span>Paste</span>
+          </button>
+          <div className="w-px bg-border" />
+          <button
+            type="button"
+            onMouseDown={e => { e.preventDefault(); onClear(); }}
+            className="flex-1 flex items-center justify-center gap-1 py-1 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+            tabIndex={-1}
+          >
+            <X className="w-3 h-3" />
+            <span>Cancel</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }
