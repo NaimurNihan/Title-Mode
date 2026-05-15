@@ -539,25 +539,10 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made, 
   const bgClass = made ? "bg-accent/10" : "bg-background";
 
   return (
-    <div className={`rounded-lg border transition-all ${borderClass} ${bgClass} ${disabled ? "opacity-60" : ""}`}>
-      {/* Auto-grow textarea */}
-      <textarea
-        ref={textareaRef}
-        value={value}
-        rows={1}
-        dir={isRtl ? "rtl" : undefined}
-        onChange={e => !disabled && onChange(e.target.value)}
-        onFocus={() => setFocused(true)}
-        onBlur={() => setFocused(false)}
-        disabled={disabled}
-        className={`w-full px-2.5 py-2 text-sm bg-transparent focus:outline-none resize-none overflow-hidden leading-snug ${isRtl ? "text-right" : ""} ${
-          made ? "text-accent" : "text-foreground"
-        } ${disabled ? "cursor-not-allowed" : ""}`}
-      />
-
-      {/* Bottom toolbar — only when focused */}
+    <div className="relative">
+      {/* Floating toolbar above — only when focused */}
       {focused && !disabled && (
-        <div className="flex border-t border-border">
+        <div className="absolute -top-8 left-0 right-0 z-30 flex items-center bg-card border border-border rounded-md shadow-md overflow-hidden">
           <button
             type="button"
             onMouseDown={e => { e.preventDefault(); onCopy(); }}
@@ -567,7 +552,7 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made, 
             <Copy className="w-3 h-3" />
             <span>Copy</span>
           </button>
-          <div className="w-px bg-border" />
+          <div className="w-px h-4 bg-border" />
           <button
             type="button"
             onMouseDown={e => { e.preventDefault(); onPaste(); }}
@@ -577,7 +562,7 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made, 
             <ClipboardPaste className="w-3 h-3" />
             <span>Paste</span>
           </button>
-          <div className="w-px bg-border" />
+          <div className="w-px h-4 bg-border" />
           <button
             type="button"
             onMouseDown={e => { e.preventDefault(); onClear(); }}
@@ -589,6 +574,25 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made, 
           </button>
         </div>
       )}
+
+      {/* Auto-grow textarea */}
+      <textarea
+        ref={textareaRef}
+        value={value}
+        rows={1}
+        dir={isRtl ? "rtl" : undefined}
+        onChange={e => !disabled && onChange(e.target.value)}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        disabled={disabled}
+        className={`w-full px-2.5 py-2 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 resize-none overflow-hidden leading-snug ${isRtl ? "text-right" : ""} ${
+          made
+            ? "border-accent/30 bg-accent/10 text-accent focus:ring-accent/20 focus:border-accent/50"
+            : focused
+              ? "border-ring bg-card"
+              : "border-border bg-background"
+        } ${disabled ? "cursor-not-allowed" : ""}`}
+      />
     </div>
   );
 }
