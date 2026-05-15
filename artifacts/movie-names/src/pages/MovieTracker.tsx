@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Plus, Trash2, Copy, ClipboardPaste, CheckCircle2, Circle, Film, X, RotateCcw, ChevronDown, ChevronUp, Type } from "lucide-react";
+import { Search, Plus, Trash2, Copy, ClipboardPaste, CheckCircle2, Circle, Film, X, RotateCcw, ChevronDown, ChevronUp, Type, Download, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const LANGUAGES = ["ARABIC", "GERMAN", "ENGLISH", "SPANISH", "FRENCH"] as const;
@@ -66,6 +66,7 @@ export default function MovieTracker() {
   const [trashOpen, setTrashOpen] = useState(false);
   const [titleMode, setTitleMode] = useState(false);
   const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
+  const uploadRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   useEffect(() => { saveData(entries); }, [entries]);
@@ -182,6 +183,40 @@ export default function MovieTracker() {
 
   const clearSearch = () => { setSearchQuery(""); setHighlightedId(null); };
 
+  const handleDownload = useCallback(() => {
+    const data = JSON.stringify({ entries, trash }, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `movie-names-backup-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ description: "Backup downloaded" });
+  }, [entries, trash, toast]);
+
+  const handleUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target?.result as string);
+        if (Array.isArray(parsed.entries)) {
+          setEntries(parsed.entries);
+          if (Array.isArray(parsed.trash)) setTrash(parsed.trash);
+          toast({ description: "Data restored successfully" });
+        } else {
+          toast({ description: "Invalid backup file", variant: "destructive" });
+        }
+      } catch {
+        toast({ description: "Could not read file", variant: "destructive" });
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  }, [toast]);
+
   const filteredEntries = searchQuery.trim()
     ? entries.filter(e => {
         const q = searchQuery.trim().toLowerCase();
@@ -251,6 +286,27 @@ export default function MovieTracker() {
                 <Plus className="w-4 h-4" />
                 Add Row
               </button>
+              <button
+                onClick={handleDownload}
+                className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors shrink-0"
+                title="Download backup"
+              >
+                <Download className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => uploadRef.current?.click()}
+                className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors shrink-0"
+                title="Upload backup"
+              >
+                <Upload className="w-4 h-4" />
+              </button>
+              <input
+                ref={uploadRef}
+                type="file"
+                accept=".json"
+                className="hidden"
+                onChange={handleUpload}
+              />
             </div>
           </div>
         </div>
