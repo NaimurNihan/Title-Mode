@@ -74,12 +74,12 @@ export default function MovieTracker() {
   const addRow = useCallback(() => {
     setEntries(prev => {
       const nextNum = prev.length + 1;
-      return [...prev, {
+      return [{
         id: generateId(),
         number: formatNumber(nextNum),
         names: { ARABIC: "", GERMAN: "", ENGLISH: "", SPANISH: "", FRENCH: "" },
         made: false,
-      }];
+      }, ...prev];
     });
   }, []);
 
