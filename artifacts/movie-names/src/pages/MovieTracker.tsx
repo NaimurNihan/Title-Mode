@@ -288,8 +288,11 @@ export default function MovieTracker() {
                     </td>
                     {LANGUAGES.map(lang => {
                       const raw = entry.names[lang];
+                      const isRtl = lang === "ARABIC";
                       const titled = raw.trim()
-                        ? `(${raw.trim()}) ${TITLE_SUFFIX[lang]}`
+                        ? isRtl
+                          ? `${TITLE_SUFFIX[lang]} (${raw.trim()})`
+                          : `(${raw.trim()}) ${TITLE_SUFFIX[lang]}`
                         : "";
                       return (
                         <td key={lang} className="px-2 py-2 align-middle">
@@ -298,6 +301,7 @@ export default function MovieTracker() {
                               value={titled}
                               made={entry.made}
                               onCopy={() => copyCell(titled)}
+                              isRtl={isRtl}
                             />
                           ) : (
                             <CellInput
@@ -308,6 +312,7 @@ export default function MovieTracker() {
                               onClear={() => clearCell(entry.id, lang)}
                               disabled={entry.made}
                               made={entry.made}
+                              isRtl={isRtl}
                             />
                           )}
                         </td>
@@ -454,15 +459,17 @@ interface CellInputProps {
   onClear: () => void;
   disabled?: boolean;
   made?: boolean;
+  isRtl?: boolean;
 }
 
 interface TitleCellProps {
   value: string;
   made?: boolean;
   onCopy: () => void;
+  isRtl?: boolean;
 }
 
-function TitleCell({ value, made, onCopy }: TitleCellProps) {
+function TitleCell({ value, made, onCopy, isRtl }: TitleCellProps) {
   const [hovered, setHovered] = useState(false);
   return (
     <div
@@ -483,18 +490,21 @@ function TitleCell({ value, made, onCopy }: TitleCellProps) {
           </button>
         </div>
       )}
-      <div className={`w-full px-2.5 py-2 text-sm rounded-lg border leading-snug min-h-[36px] ${
-        made
-          ? "border-accent/30 bg-accent/10 text-accent"
-          : "border-border bg-background text-foreground"
-      } ${value ? "" : "text-muted-foreground/40 italic"}`}>
+      <div
+        dir={isRtl ? "rtl" : undefined}
+        className={`w-full px-2.5 py-2 text-sm rounded-lg border leading-snug min-h-[36px] ${isRtl ? "text-right" : ""} ${
+          made
+            ? "border-accent/30 bg-accent/10 text-accent"
+            : "border-border bg-background text-foreground"
+        } ${value ? "" : "text-muted-foreground/40 italic"}`}
+      >
         {value || "—"}
       </div>
     </div>
   );
 }
 
-function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made }: CellInputProps) {
+function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made, isRtl }: CellInputProps) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -560,11 +570,12 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made }
         ref={textareaRef}
         value={value}
         rows={1}
+        dir={isRtl ? "rtl" : undefined}
         onChange={e => !disabled && onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         disabled={disabled}
-        className={`w-full px-2.5 py-2 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 resize-none overflow-hidden leading-snug ${
+        className={`w-full px-2.5 py-2 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 resize-none overflow-hidden leading-snug ${isRtl ? "text-right" : ""} ${
           made
             ? "border-accent/30 bg-accent/10 text-accent focus:ring-accent/20 focus:border-accent/50"
             : focused
