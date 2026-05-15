@@ -5,12 +5,12 @@ import { useToast } from "@/hooks/use-toast";
 const LANGUAGES = ["ARABIC", "GERMAN", "ENGLISH", "SPANISH", "FRENCH"] as const;
 type Language = typeof LANGUAGES[number];
 
-const LANG_LABEL: Record<Language, string> = {
-  ARABIC: "Arabic",
-  GERMAN: "German",
-  ENGLISH: "English",
-  SPANISH: "Spanish",
-  FRENCH: "French",
+const TITLE_SUFFIX: Record<Language, string> = {
+  ARABIC: "شرح الفيلم باللغة العربية",
+  GERMAN: "Film auf Deutsch erklärt",
+  ENGLISH: "Movie Explained in English",
+  SPANISH: "Película explicada en español",
+  FRENCH: "Film expliqué en français",
 };
 
 interface MovieEntry {
@@ -289,7 +289,7 @@ export default function MovieTracker() {
                     {LANGUAGES.map(lang => {
                       const raw = entry.names[lang];
                       const titled = raw.trim()
-                        ? `${raw.trim()} Explained in ${LANG_LABEL[lang]}`
+                        ? `(${raw.trim()}) ${TITLE_SUFFIX[lang]}`
                         : "";
                       return (
                         <td key={lang} className="px-2 py-2 align-middle">
