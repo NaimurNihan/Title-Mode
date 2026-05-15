@@ -71,15 +71,18 @@ export default function MovieTracker() {
   useEffect(() => { saveData(entries); }, [entries]);
   useEffect(() => { saveTrash(trash); }, [trash]);
 
+  const renumber = (arr: MovieEntry[]): MovieEntry[] =>
+    arr.map((e, i) => ({ ...e, number: formatNumber(arr.length - i) }));
+
   const addRow = useCallback(() => {
     setEntries(prev => {
-      const maxNum = prev.length === 0 ? 0 : Math.max(...prev.map(e => parseInt(e.number, 10)));
-      return [{
+      const newEntry: MovieEntry = {
         id: generateId(),
-        number: formatNumber(maxNum + 1),
+        number: formatNumber(prev.length + 1),
         names: { ARABIC: "", GERMAN: "", ENGLISH: "", SPANISH: "", FRENCH: "" },
         made: false,
-      }, ...prev];
+      };
+      return renumber([newEntry, ...prev]);
     });
   }, []);
 
@@ -95,7 +98,7 @@ export default function MovieTracker() {
         setTrash(t => [target, ...t]);
         toast({ description: `Row ${target.number} moved to trash` });
       }
-      return prev.filter(e => e.id !== id);
+      return renumber(prev.filter(e => e.id !== id));
     });
   }, [toast]);
 
