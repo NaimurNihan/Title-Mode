@@ -561,20 +561,16 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made, 
                 <ClipboardPaste className="w-3 h-3" />
                 <span>Paste</span>
               </button>
-              {value && (
-                <>
-                  <div className="w-px h-3 bg-border" />
-                  <button
-                    type="button"
-                    onMouseDown={e => { e.preventDefault(); onClear(); }}
-                    className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                    tabIndex={-1}
-                  >
-                    <X className="w-3 h-3" />
-                    <span>Clear</span>
-                  </button>
-                </>
-              )}
+              <div className="w-px h-3 bg-border" />
+              <button
+                type="button"
+                onMouseDown={e => { e.preventDefault(); onClear(); }}
+                className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                tabIndex={-1}
+              >
+                <X className="w-3 h-3" />
+                <span>Cancel</span>
+              </button>
             </>
           )}
         </div>
