@@ -259,8 +259,8 @@ export default function MovieTracker() {
                     } ${highlightedId === entry.id ? "bg-primary/8" : ""}`}
                   >
                     <td className="px-3 py-2 align-middle">
-                      <span className={`inline-flex items-center justify-center w-10 h-9 rounded-md text-xs font-bold tabular-nums ${
-                        entry.made ? "bg-accent/20 text-accent" : "bg-secondary text-muted-foreground"
+                      <span className={`inline-flex items-center justify-center w-10 h-8 rounded-md text-xs font-bold tabular-nums ${
+                        entry.made ? "bg-accent/15 text-accent" : "bg-secondary/50 text-muted-foreground/70"
                       }`}>
                         {entry.number}
                       </span>
