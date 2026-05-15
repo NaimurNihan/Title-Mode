@@ -279,8 +279,12 @@ export default function MovieTracker() {
                     key={entry.id}
                     ref={el => { rowRefs.current[entry.id] = el; }}
                     className={`group transition-colors ${
-                      entry.made ? "hover:bg-secondary/10" : "hover:bg-secondary/30"
-                    } ${highlightedId === entry.id ? "bg-primary/8" : ""}`}
+                      highlightedId === entry.id
+                        ? "bg-primary/8"
+                        : filteredEntries.indexOf(entry) % 2 === 0
+                          ? "bg-white hover:bg-slate-50"
+                          : "bg-slate-50/70 hover:bg-slate-100/60"
+                    }`}
                   >
                     <td className="px-3 py-2 align-middle">
                       <span className={`inline-flex items-center justify-center w-10 h-8 rounded-md text-xs font-bold tabular-nums ${
