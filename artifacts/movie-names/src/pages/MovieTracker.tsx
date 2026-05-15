@@ -276,7 +276,7 @@ export default function MovieTracker() {
               <tbody>
                 {filteredEntries.map((entry, idx) => (
                   <React.Fragment key={entry.id}>
-                  {idx > 0 && idx % 5 === 0 && (
+                  {idx > 0 && Math.ceil(parseInt(entry.number, 10) / 5) !== Math.ceil(parseInt(filteredEntries[idx - 1].number, 10) / 5) && (
                     <tr aria-hidden="true">
                       <td colSpan={7} className="p-0">
                         <div className="h-3 bg-slate-100 border-y border-slate-200" />
