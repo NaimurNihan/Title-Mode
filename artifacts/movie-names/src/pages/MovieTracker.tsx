@@ -1,9 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Search, Plus, Trash2, Copy, ClipboardPaste, CheckCircle2, Circle, Film, X, RotateCcw, ChevronDown, ChevronUp } from "lucide-react";
+import { Search, Plus, Trash2, Copy, ClipboardPaste, CheckCircle2, Circle, Film, X, RotateCcw, ChevronDown, ChevronUp, Type } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const LANGUAGES = ["ARABIC", "GERMAN", "ENGLISH", "SPANISH", "FRENCH"] as const;
 type Language = typeof LANGUAGES[number];
+
+const LANG_LABEL: Record<Language, string> = {
+  ARABIC: "Arabic",
+  GERMAN: "German",
+  ENGLISH: "English",
+  SPANISH: "Spanish",
+  FRENCH: "French",
+};
 
 interface MovieEntry {
   id: string;
@@ -56,6 +64,7 @@ export default function MovieTracker() {
   const [searchQuery, setSearchQuery] = useState("");
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [trashOpen, setTrashOpen] = useState(false);
+  const [titleMode, setTitleMode] = useState(false);
   const rowRefs = useRef<Record<string, HTMLTableRowElement | null>>({});
   const { toast } = useToast();
 
@@ -222,6 +231,18 @@ export default function MovieTracker() {
                 )}
               </div>
               <button
+                onClick={() => setTitleMode(m => !m)}
+                className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors shrink-0 border ${
+                  titleMode
+                    ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+                    : "bg-card text-foreground border-border hover:bg-secondary/60"
+                }`}
+                title={titleMode ? "Exit Title Mode" : "Enable Title Mode"}
+              >
+                <Type className="w-4 h-4" />
+                Title Mode
+              </button>
+              <button
                 onClick={addRow}
                 className="flex items-center gap-1.5 px-3 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-lg hover:bg-primary/90 transition-colors shrink-0"
               >
@@ -265,19 +286,33 @@ export default function MovieTracker() {
                         {entry.number}
                       </span>
                     </td>
-                    {LANGUAGES.map(lang => (
-                      <td key={lang} className="px-2 py-2 align-middle">
-                        <CellInput
-                          value={entry.names[lang]}
-                          onChange={val => updateName(entry.id, lang, val)}
-                          onCopy={() => copyCell(entry.names[lang])}
-                          onPaste={() => pasteCell(entry.id, lang)}
-                          onClear={() => clearCell(entry.id, lang)}
-                          disabled={entry.made}
-                          made={entry.made}
-                        />
-                      </td>
-                    ))}
+                    {LANGUAGES.map(lang => {
+                      const raw = entry.names[lang];
+                      const titled = raw.trim()
+                        ? `${raw.trim()} Explained in ${LANG_LABEL[lang]}`
+                        : "";
+                      return (
+                        <td key={lang} className="px-2 py-2 align-middle">
+                          {titleMode ? (
+                            <TitleCell
+                              value={titled}
+                              made={entry.made}
+                              onCopy={() => copyCell(titled)}
+                            />
+                          ) : (
+                            <CellInput
+                              value={raw}
+                              onChange={val => updateName(entry.id, lang, val)}
+                              onCopy={() => copyCell(raw)}
+                              onPaste={() => pasteCell(entry.id, lang)}
+                              onClear={() => clearCell(entry.id, lang)}
+                              disabled={entry.made}
+                              made={entry.made}
+                            />
+                          )}
+                        </td>
+                      );
+                    })}
                     <td className="px-1 py-2 align-middle">
                       <div className="flex flex-col items-center gap-0.5">
                         <button
@@ -419,6 +454,44 @@ interface CellInputProps {
   onClear: () => void;
   disabled?: boolean;
   made?: boolean;
+}
+
+interface TitleCellProps {
+  value: string;
+  made?: boolean;
+  onCopy: () => void;
+}
+
+function TitleCell({ value, made, onCopy }: TitleCellProps) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {hovered && value && (
+        <div className="absolute -top-8 left-0 z-30 flex items-center gap-0.5 bg-card border border-border rounded-md shadow-md px-1 py-0.5">
+          <button
+            type="button"
+            onMouseDown={e => { e.preventDefault(); onCopy(); }}
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            tabIndex={-1}
+          >
+            <Copy className="w-3 h-3" />
+            <span>Copy</span>
+          </button>
+        </div>
+      )}
+      <div className={`w-full px-2.5 py-2 text-sm rounded-lg border leading-snug min-h-[36px] ${
+        made
+          ? "border-accent/30 bg-accent/10 text-accent"
+          : "border-border bg-background text-foreground"
+      } ${value ? "" : "text-muted-foreground/40 italic"}`}>
+        {value || "—"}
+      </div>
+    </div>
+  );
 }
 
 function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made }: CellInputProps) {
