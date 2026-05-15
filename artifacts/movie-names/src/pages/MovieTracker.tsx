@@ -281,16 +281,16 @@ export default function MovieTracker() {
                     <td className="px-3 py-2 text-center">
                       <button
                         onClick={() => toggleMade(entry.id)}
-                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium transition-all ${
+                        className={`inline-flex items-center justify-center w-7 h-7 rounded-md transition-all ${
                           entry.made
                             ? "bg-accent/20 text-accent hover:bg-accent/30"
-                            : "bg-muted text-muted-foreground hover:bg-secondary hover:text-foreground"
+                            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                         }`}
                         title={entry.made ? "Mark as not made" : "Mark as made"}
                       >
                         {entry.made
-                          ? <><CheckCircle2 className="w-3.5 h-3.5" /><span>Done</span></>
-                          : <><Circle className="w-3.5 h-3.5" /><span>Mark</span></>
+                          ? <CheckCircle2 className="w-4 h-4" />
+                          : <Circle className="w-4 h-4" />
                         }
                       </button>
                     </td>
