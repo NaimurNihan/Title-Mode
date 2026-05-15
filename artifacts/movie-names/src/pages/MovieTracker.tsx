@@ -255,7 +255,7 @@ export default function MovieTracker() {
                     key={entry.id}
                     ref={el => { rowRefs.current[entry.id] = el; }}
                     className={`group transition-colors ${
-                      entry.made ? "bg-accent/5 hover:bg-accent/10" : "hover:bg-secondary/30"
+                      entry.made ? "hover:bg-secondary/10" : "hover:bg-secondary/30"
                     } ${highlightedId === entry.id ? "bg-primary/8" : ""}`}
                   >
                     <td className="px-3 py-2 align-middle">
@@ -274,6 +274,7 @@ export default function MovieTracker() {
                           onPaste={() => pasteCell(entry.id, lang)}
                           onClear={() => clearCell(entry.id, lang)}
                           disabled={entry.made}
+                          made={entry.made}
                         />
                       </td>
                     ))}
@@ -417,9 +418,10 @@ interface CellInputProps {
   onPaste: () => void;
   onClear: () => void;
   disabled?: boolean;
+  made?: boolean;
 }
 
-function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: CellInputProps) {
+function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made }: CellInputProps) {
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -489,9 +491,13 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: Cell
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         disabled={disabled}
-        className={`w-full px-2.5 py-2 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring resize-none overflow-hidden leading-snug ${
-          focused ? "border-ring bg-card" : "border-border bg-background hover:border-muted-foreground/40"
-        } ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
+        className={`w-full px-2.5 py-2 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 resize-none overflow-hidden leading-snug ${
+          made
+            ? "border-accent/30 bg-accent/10 text-accent focus:ring-accent/20 focus:border-accent/50"
+            : focused
+              ? "border-ring bg-card"
+              : "border-border bg-background hover:border-muted-foreground/40"
+        } ${disabled ? "cursor-not-allowed" : ""}`}
       />
     </div>
   );
