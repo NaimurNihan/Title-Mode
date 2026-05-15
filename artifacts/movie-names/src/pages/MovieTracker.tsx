@@ -234,13 +234,13 @@ export default function MovieTracker() {
                 onClick={() => setTitleMode(m => !m)}
                 className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg transition-colors shrink-0 border ${
                   titleMode
-                    ? "bg-primary text-primary-foreground border-primary hover:bg-primary/90"
+                    ? "bg-amber-500 text-white border-amber-500 hover:bg-amber-600"
                     : "bg-card text-foreground border-border hover:bg-secondary/60"
                 }`}
-                title={titleMode ? "Exit Title Mode" : "Enable Title Mode"}
+                title={titleMode ? "Exit Title Mode to edit" : "Enable Title Mode"}
               >
-                <Type className="w-4 h-4" />
-                Title Mode
+                {titleMode ? <X className="w-4 h-4" /> : <Type className="w-4 h-4" />}
+                {titleMode ? "Exit Title Mode" : "Title Mode"}
               </button>
               <button
                 onClick={addRow}
@@ -253,6 +253,21 @@ export default function MovieTracker() {
           </div>
         </div>
       </div>
+
+      {/* Title Mode banner */}
+      {titleMode && (
+        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between">
+          <span className="text-amber-800 text-sm font-medium">
+            Title Mode is ON — cells are read-only. Click <strong>Exit Title Mode</strong> to edit again.
+          </span>
+          <button
+            onClick={() => setTitleMode(false)}
+            className="text-amber-700 hover:text-amber-900 text-xs font-semibold underline"
+          >
+            Exit
+          </button>
+        </div>
+      )}
 
       {/* Table */}
       <div className="mx-auto px-4 py-4">
