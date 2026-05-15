@@ -282,7 +282,7 @@ export default function MovieTracker() {
                       highlightedId === entry.id
                         ? "bg-primary/8"
                         : parseInt(entry.number, 10) % 5 === 0
-                          ? "bg-yellow-50/80 hover:bg-yellow-100/60"
+                          ? "bg-blue-50/80 hover:bg-blue-100/60"
                           : filteredEntries.indexOf(entry) % 2 === 0
                             ? "bg-white hover:bg-slate-50"
                             : "bg-slate-50/70 hover:bg-slate-100/60"
