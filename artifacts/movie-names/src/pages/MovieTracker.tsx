@@ -485,13 +485,12 @@ interface TitleCellProps {
 }
 
 function TitleCell({ value, made, onCopy, isRtl }: TitleCellProps) {
-  const [flash, setFlash] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleDoubleClick = () => {
     if (!value) return;
     onCopy();
-    setFlash(true);
-    setTimeout(() => setFlash(false), 600);
+    setCopied(prev => !prev);
   };
 
   return (
@@ -500,7 +499,7 @@ function TitleCell({ value, made, onCopy, isRtl }: TitleCellProps) {
       onDoubleClick={handleDoubleClick}
       title={value ? "Double-click to copy" : undefined}
       className={`w-full px-2.5 py-2 text-sm rounded-lg border leading-snug min-h-[36px] select-none transition-colors duration-300 ${isRtl ? "text-right" : ""} ${
-        flash
+        copied
           ? "border-green-400 bg-green-50 text-green-800"
           : made
             ? "border-accent/30 bg-accent/10 text-accent"
