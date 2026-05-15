@@ -258,7 +258,7 @@ export default function MovieTracker() {
                       entry.made ? "bg-accent/5 hover:bg-accent/10" : "hover:bg-secondary/30"
                     } ${highlightedId === entry.id ? "bg-primary/8" : ""}`}
                   >
-                    <td className="px-3 py-2">
+                    <td className="px-3 py-2 align-middle">
                       <span className={`inline-flex items-center justify-center w-10 h-7 rounded-md text-xs font-bold tabular-nums ${
                         entry.made ? "bg-accent/20 text-accent" : "bg-secondary text-muted-foreground"
                       }`}>
@@ -266,7 +266,7 @@ export default function MovieTracker() {
                       </span>
                     </td>
                     {LANGUAGES.map(lang => (
-                      <td key={lang} className="px-2 py-2">
+                      <td key={lang} className="px-2 py-2 align-middle">
                         <CellInput
                           value={entry.names[lang]}
                           onChange={val => updateName(entry.id, lang, val)}
@@ -277,7 +277,7 @@ export default function MovieTracker() {
                         />
                       </td>
                     ))}
-                    <td className="px-1 py-1">
+                    <td className="px-1 py-2 align-middle">
                       <div className="flex flex-col items-center gap-0.5">
                         <button
                           onClick={() => toggleMade(entry.id)}
