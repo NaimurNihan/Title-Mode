@@ -316,14 +316,63 @@ interface CellInputProps {
 }
 
 function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: CellInputProps) {
+  const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
+  const showToolbar = (hovered || focused) && !disabled || (hovered && !disabled);
 
   return (
-    <div className={`relative group/cell flex items-center rounded-lg border transition-all ${
-      focused
-        ? "border-ring ring-2 ring-ring/20 bg-card"
-        : "border-border bg-background hover:border-muted-foreground/40"
-    } ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}>
+    <div
+      className="relative group/cell"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Floating toolbar — appears above the cell */}
+      {(hovered || focused) && (
+        <div className="absolute -top-8 left-0 z-30 flex items-center gap-0.5 bg-card border border-border rounded-md shadow-md px-1 py-0.5">
+          <button
+            type="button"
+            onMouseDown={e => { e.preventDefault(); onCopy(); }}
+            className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            title="Copy"
+            tabIndex={-1}
+          >
+            <Copy className="w-3 h-3" />
+            <span>Copy</span>
+          </button>
+          {!disabled && (
+            <>
+              <div className="w-px h-3 bg-border" />
+              <button
+                type="button"
+                onMouseDown={e => { e.preventDefault(); onPaste(); }}
+                className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                title="Paste"
+                tabIndex={-1}
+              >
+                <ClipboardPaste className="w-3 h-3" />
+                <span>Paste</span>
+              </button>
+              {value && (
+                <>
+                  <div className="w-px h-3 bg-border" />
+                  <button
+                    type="button"
+                    onMouseDown={e => { e.preventDefault(); onClear(); }}
+                    className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    title="Clear"
+                    tabIndex={-1}
+                  >
+                    <X className="w-3 h-3" />
+                    <span>Clear</span>
+                  </button>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Input — full width, no icons inside */}
       <input
         type="text"
         value={value}
@@ -331,48 +380,12 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: Cell
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         disabled={disabled}
-        className="w-full min-w-0 px-2.5 py-1.5 text-sm bg-transparent focus:outline-none disabled:cursor-not-allowed"
-        placeholder=""
-        dir={undefined}
+        className={`w-full px-2.5 py-1.5 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring ${
+          focused
+            ? "border-ring bg-card"
+            : "border-border bg-background hover:border-muted-foreground/40"
+        } ${disabled ? "opacity-60 cursor-not-allowed" : ""}`}
       />
-      {/* Action icons — shown on hover/focus */}
-      <div className={`flex items-center gap-0.5 pr-1 shrink-0 transition-opacity ${
-        focused ? "opacity-100" : "opacity-0 group-hover/cell:opacity-100"
-      }`}>
-        <button
-          type="button"
-          onMouseDown={e => { e.preventDefault(); onCopy(); }}
-          className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-          title="Copy"
-          tabIndex={-1}
-        >
-          <Copy className="w-3 h-3" />
-        </button>
-        {!disabled && (
-          <>
-            <button
-              type="button"
-              onMouseDown={e => { e.preventDefault(); onPaste(); }}
-              className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-              title="Paste"
-              tabIndex={-1}
-            >
-              <ClipboardPaste className="w-3 h-3" />
-            </button>
-            {value && (
-              <button
-                type="button"
-                onMouseDown={e => { e.preventDefault(); onClear(); }}
-                className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                title="Clear"
-                tabIndex={-1}
-              >
-                <X className="w-3 h-3" />
-              </button>
-            )}
-          </>
-        )}
-      </div>
     </div>
   );
 }
