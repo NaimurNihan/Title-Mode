@@ -306,8 +306,8 @@ export default function MovieTracker() {
                       const isRtl = lang === "ARABIC";
                       const titled = raw.trim()
                         ? isRtl
-                          ? `${TITLE_SUFFIX[lang]} (${raw.trim()})`
-                          : `(${raw.trim()}) ${TITLE_SUFFIX[lang]}`
+                          ? `${TITLE_SUFFIX[lang]} — ${raw.trim()}`
+                          : `${raw.trim()} — ${TITLE_SUFFIX[lang]}`
                         : "";
                       return (
                         <td key={lang} className="px-2 py-2 align-middle">
