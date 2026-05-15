@@ -578,8 +578,8 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled, made, 
           made
             ? "border-accent/30 bg-accent/10 text-accent focus:ring-accent/20 focus:border-accent/50"
             : focused
-              ? "border-ring bg-white"
-              : "border-border bg-white"
+              ? "border-ring bg-slate-50"
+              : "border-border bg-slate-50"
         } ${disabled ? "cursor-not-allowed" : ""}`}
       />
     </div>
