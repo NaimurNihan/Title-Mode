@@ -73,10 +73,10 @@ export default function MovieTracker() {
 
   const addRow = useCallback(() => {
     setEntries(prev => {
-      const nextNum = prev.length + 1;
+      const maxNum = prev.length === 0 ? 0 : Math.max(...prev.map(e => parseInt(e.number, 10)));
       return [{
         id: generateId(),
-        number: formatNumber(nextNum),
+        number: formatNumber(maxNum + 1),
         names: { ARABIC: "", GERMAN: "", ENGLISH: "", SPANISH: "", FRENCH: "" },
         made: false,
       }, ...prev];
@@ -95,8 +95,7 @@ export default function MovieTracker() {
         setTrash(t => [target, ...t]);
         toast({ description: `Row ${target.number} moved to trash` });
       }
-      const filtered = prev.filter(e => e.id !== id);
-      return filtered.map((e, i) => ({ ...e, number: formatNumber(i + 1) }));
+      return prev.filter(e => e.id !== id);
     });
   }, [toast]);
 
