@@ -196,20 +196,20 @@ export default function MovieTracker() {
       </div>
 
       {/* Table */}
-      <div className="max-w-[1400px] mx-auto px-4 py-4">
+      <div className="mx-auto px-4 py-4">
         <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full">
+          <div>
+            <table className="w-full table-fixed">
               <thead>
                 <tr className="bg-secondary/60 border-b border-border">
-                  <th className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-16">NO</th>
+                  <th className="text-left px-3 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-14">NO</th>
                   {LANGUAGES.map(lang => (
-                    <th key={lang} className="text-center px-3 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    <th key={lang} className="text-center px-2 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                       {lang}
                     </th>
                   ))}
-                  <th className="text-center px-3 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-20">MADE</th>
-                  <th className="w-10 px-2 py-3"></th>
+                  <th className="text-center px-2 py-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider w-20">MADE</th>
+                  <th className="w-8 px-1 py-3"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
@@ -376,11 +376,12 @@ function CellInput({ value, onChange, onCopy, onPaste, onClear, disabled }: Cell
       <input
         type="text"
         value={value}
+        title={value || undefined}
         onChange={e => !disabled && onChange(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         disabled={disabled}
-        className={`w-full px-2.5 py-1.5 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring ${
+        className={`w-full px-2.5 py-2 text-sm rounded-lg border transition-all focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-ring ${
           focused
             ? "border-ring bg-card"
             : "border-border bg-background hover:border-muted-foreground/40"
