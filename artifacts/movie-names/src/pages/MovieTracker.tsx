@@ -281,9 +281,11 @@ export default function MovieTracker() {
                     className={`group transition-colors ${
                       highlightedId === entry.id
                         ? "bg-primary/8"
-                        : filteredEntries.indexOf(entry) % 2 === 0
-                          ? "bg-white hover:bg-slate-50"
-                          : "bg-slate-50/70 hover:bg-slate-100/60"
+                        : parseInt(entry.number, 10) % 5 === 0
+                          ? "bg-yellow-50/80 hover:bg-yellow-100/60"
+                          : filteredEntries.indexOf(entry) % 2 === 0
+                            ? "bg-white hover:bg-slate-50"
+                            : "bg-slate-50/70 hover:bg-slate-100/60"
                     }`}
                   >
                     <td className="px-3 py-2 align-middle">
