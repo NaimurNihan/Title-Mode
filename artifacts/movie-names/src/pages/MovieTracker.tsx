@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Search, Plus, Trash2, Copy, ClipboardPaste, CheckCircle2, Circle, Film, X, RotateCcw, ChevronDown, ChevronUp, Type } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -273,19 +273,22 @@ export default function MovieTracker() {
                   <th className="w-9 px-1 py-3"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
-                {filteredEntries.map((entry) => (
+              <tbody>
+                {filteredEntries.map((entry, idx) => (
+                  <React.Fragment key={entry.id}>
+                  {idx > 0 && idx % 5 === 0 && (
+                    <tr aria-hidden="true">
+                      <td colSpan={7} className="p-0">
+                        <div className="h-3 bg-slate-100 border-y border-slate-200" />
+                      </td>
+                    </tr>
+                  )}
                   <tr
-                    key={entry.id}
                     ref={el => { rowRefs.current[entry.id] = el; }}
-                    className={`group transition-colors ${
+                    className={`group transition-colors border-b border-slate-100 ${
                       highlightedId === entry.id
                         ? "bg-primary/8"
-                        : parseInt(entry.number, 10) % 5 === 0
-                          ? "bg-sky-200/50 hover:bg-sky-200/60"
-                          : filteredEntries.indexOf(entry) % 2 === 0
-                            ? "bg-white hover:bg-slate-50"
-                            : "bg-slate-50/70 hover:bg-slate-100/60"
+                        : "bg-white hover:bg-slate-50"
                     }`}
                   >
                     <td className="px-3 py-2 align-middle">
@@ -351,6 +354,7 @@ export default function MovieTracker() {
                       </div>
                     </td>
                   </tr>
+                  </React.Fragment>
                 ))}
                 {filteredEntries.length === 0 && (
                   <tr>
