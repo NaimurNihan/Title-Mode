@@ -485,36 +485,29 @@ interface TitleCellProps {
 }
 
 function TitleCell({ value, made, onCopy, isRtl }: TitleCellProps) {
-  const [hovered, setHovered] = useState(false);
+  const [flash, setFlash] = useState(false);
+
+  const handleDoubleClick = () => {
+    if (!value) return;
+    onCopy();
+    setFlash(true);
+    setTimeout(() => setFlash(false), 600);
+  };
+
   return (
     <div
-      className="relative"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
-      {hovered && value && (
-        <div className="absolute -top-8 left-0 z-30 flex items-center gap-0.5 bg-card border border-border rounded-md shadow-md px-1 py-0.5">
-          <button
-            type="button"
-            onMouseDown={e => { e.preventDefault(); onCopy(); }}
-            className="flex items-center gap-1 px-1.5 py-0.5 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            tabIndex={-1}
-          >
-            <Copy className="w-3 h-3" />
-            <span>Copy</span>
-          </button>
-        </div>
-      )}
-      <div
-        dir={isRtl ? "rtl" : undefined}
-        className={`w-full px-2.5 py-2 text-sm rounded-lg border leading-snug min-h-[36px] ${isRtl ? "text-right" : ""} ${
-          made
+      dir={isRtl ? "rtl" : undefined}
+      onDoubleClick={handleDoubleClick}
+      title={value ? "Double-click to copy" : undefined}
+      className={`w-full px-2.5 py-2 text-sm rounded-lg border leading-snug min-h-[36px] select-none transition-colors duration-300 ${isRtl ? "text-right" : ""} ${
+        flash
+          ? "border-green-400 bg-green-50 text-green-800"
+          : made
             ? "border-accent/30 bg-accent/10 text-accent"
             : "border-border bg-background text-foreground"
-        } ${value ? "" : "text-muted-foreground/40 italic"}`}
-      >
-        {value || "—"}
-      </div>
+      } ${value ? "cursor-pointer" : "text-muted-foreground/40 italic"}`}
+    >
+      {value || "—"}
     </div>
   );
 }
