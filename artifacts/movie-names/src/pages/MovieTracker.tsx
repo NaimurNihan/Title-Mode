@@ -218,16 +218,16 @@ export default function MovieTracker() {
             {/* RIGHT: Search + Add */}
             <div className="flex items-center gap-2 ml-auto">
               <div className="relative w-72">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
                 <input
                   type="search"
-                  className="w-full pl-9 pr-8 py-2 text-sm bg-secondary border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent placeholder:text-muted-foreground"
+                  className="w-full pl-9 pr-8 py-2 text-sm bg-white border border-slate-200 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/50 placeholder:text-slate-400 text-slate-700 transition-all"
                   placeholder="Search by name or number..."
                   value={searchQuery}
                   onChange={e => handleSearch(e.target.value)}
                 />
                 {searchQuery && (
-                  <button onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground">
+                  <button onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 transition-colors">
                     <X className="w-3 h-3" />
                   </button>
                 )}
@@ -256,20 +256,6 @@ export default function MovieTracker() {
         </div>
       </div>
 
-      {/* Title Mode banner */}
-      {titleMode && (
-        <div className="bg-amber-50 border-b border-amber-200 px-4 py-2 flex items-center justify-between">
-          <span className="text-amber-800 text-sm font-medium">
-            Title Mode is ON — cells are read-only. Click <strong>Exit Title Mode</strong> to edit again.
-          </span>
-          <button
-            onClick={() => setTitleMode(false)}
-            className="text-amber-700 hover:text-amber-900 text-xs font-semibold underline"
-          >
-            Exit
-          </button>
-        </div>
-      )}
 
       {/* Table */}
       <div className="mx-auto px-4 py-4">
