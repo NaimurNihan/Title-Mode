@@ -258,10 +258,12 @@ export default function MovieTracker() {
                       entry.made ? "bg-accent/5 hover:bg-accent/10" : "hover:bg-secondary/30"
                     } ${highlightedId === entry.id ? "bg-primary/8" : ""}`}
                   >
-                    <td className={`px-2 py-2 align-middle text-center text-xs font-bold tabular-nums rounded-l-md ${
-                      entry.made ? "bg-accent/10 text-accent" : "bg-secondary/60 text-muted-foreground"
-                    }`}>
-                      {entry.number}
+                    <td className="px-3 py-2 align-middle">
+                      <span className={`inline-flex items-center justify-center w-10 h-7 rounded-md text-xs font-bold tabular-nums ${
+                        entry.made ? "bg-accent/20 text-accent" : "bg-secondary text-muted-foreground"
+                      }`}>
+                        {entry.number}
+                      </span>
                     </td>
                     {LANGUAGES.map(lang => (
                       <td key={lang} className="px-2 py-2 align-middle">
