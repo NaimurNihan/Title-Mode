@@ -318,77 +318,94 @@ export default function MovieTracker() {
         </div>
       </div>
 
-      {/* Trash Box — fixed bottom-left */}
-      <div className="fixed bottom-4 left-4 z-40 w-80">
-        <div className={`bg-card border border-border rounded-xl shadow-lg overflow-hidden transition-all ${trashOpen ? "" : ""}`}>
-          {/* Trash header */}
+      {/* Trash — small icon button, expands to full panel on click */}
+      <div className="fixed bottom-4 left-4 z-40">
+        {/* Collapsed: icon-only button */}
+        {!trashOpen && (
           <button
-            onClick={() => setTrashOpen(o => !o)}
-            className="w-full flex items-center gap-2 px-4 py-3 hover:bg-secondary/50 transition-colors"
+            onClick={() => setTrashOpen(true)}
+            className="relative w-10 h-10 bg-card border border-border rounded-xl shadow-lg flex items-center justify-center hover:bg-secondary/50 transition-colors"
+            title="Open Trash"
           >
-            <div className="relative">
-              <Trash2 className="w-4 h-4 text-muted-foreground" />
-              {trash.length > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
-                  {trash.length > 9 ? "9+" : trash.length}
-                </span>
-              )}
-            </div>
-            <span className="text-sm font-medium text-foreground flex-1 text-left">
-              Trash {trash.length > 0 ? `(${trash.length})` : ""}
-            </span>
-            {trash.length > 0 && !trashOpen && (
-              <span className="text-xs text-muted-foreground">Click to recover</span>
+            <Trash2 className="w-5 h-5 text-muted-foreground" />
+            {trash.length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
+                {trash.length > 9 ? "9+" : trash.length}
+              </span>
             )}
-            {trashOpen ? <ChevronDown className="w-4 h-4 text-muted-foreground" /> : <ChevronUp className="w-4 h-4 text-muted-foreground" />}
           </button>
+        )}
 
-          {/* Trash list */}
-          {trashOpen && (
-            <div className="border-t border-border">
-              {trash.length === 0 ? (
-                <p className="text-center text-xs text-muted-foreground py-4">Trash is empty</p>
-              ) : (
-                <>
-                  <div className="max-h-60 overflow-y-auto divide-y divide-border">
-                    {trash.map(e => (
-                      <div key={e.id} className="flex items-center gap-2 px-3 py-2 hover:bg-secondary/30 group/trash">
-                        <span className="text-xs font-mono text-muted-foreground w-8 shrink-0">{e.number}</span>
-                        <span className="text-xs text-foreground flex-1 truncate">
-                          {LANGUAGES.map(l => e.names[l]).find(v => v.trim()) || <span className="text-muted-foreground italic">empty</span>}
-                        </span>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button
-                            onClick={() => recoverEntry(e.id)}
-                            className="p-1 rounded text-muted-foreground hover:text-accent hover:bg-accent/10 transition-colors"
-                            title="Recover"
-                          >
-                            <RotateCcw className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            onClick={() => permanentDelete(e.id)}
-                            className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                            title="Delete permanently"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="border-t border-border px-3 py-2 flex justify-end">
-                    <button
-                      onClick={emptyTrash}
-                      className="text-xs text-destructive hover:text-destructive/80 font-medium transition-colors"
-                    >
-                      Empty Trash
-                    </button>
-                  </div>
-                </>
+        {/* Expanded: full panel */}
+        {trashOpen && (
+          <div className="w-96 bg-card border border-border rounded-xl shadow-xl overflow-hidden">
+            {/* Panel header */}
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-secondary/30">
+              <Trash2 className="w-4 h-4 text-muted-foreground shrink-0" />
+              <span className="text-sm font-semibold text-foreground flex-1">
+                Trash {trash.length > 0 ? `(${trash.length})` : ""}
+              </span>
+              {trash.length > 0 && (
+                <button
+                  onClick={emptyTrash}
+                  className="text-xs text-destructive hover:text-destructive/80 font-medium transition-colors"
+                >
+                  Empty All
+                </button>
               )}
+              <button
+                onClick={() => setTrashOpen(false)}
+                className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
-          )}
-        </div>
+
+            {/* Panel body */}
+            {trash.length === 0 ? (
+              <p className="text-center text-sm text-muted-foreground py-8">Trash is empty</p>
+            ) : (
+              <div className="max-h-80 overflow-y-auto divide-y divide-border">
+                {trash.map(e => (
+                  <div key={e.id} className="px-3 py-3 hover:bg-secondary/20 transition-colors">
+                    {/* Row number + actions */}
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-bold font-mono bg-secondary px-2 py-0.5 rounded text-muted-foreground">{e.number}</span>
+                      <span className="flex-1" />
+                      <button
+                        onClick={() => recoverEntry(e.id)}
+                        className="flex items-center gap-1 px-2 py-1 rounded text-xs text-accent bg-accent/10 hover:bg-accent/20 font-medium transition-colors"
+                        title="Recover"
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        Recover
+                      </button>
+                      <button
+                        onClick={() => permanentDelete(e.id)}
+                        className="flex items-center gap-1 px-2 py-1 rounded text-xs text-destructive bg-destructive/10 hover:bg-destructive/20 font-medium transition-colors"
+                        title="Delete permanently"
+                      >
+                        <X className="w-3 h-3" />
+                        Delete
+                      </button>
+                    </div>
+                    {/* All language names */}
+                    <div className="grid grid-cols-2 gap-1">
+                      {LANGUAGES.map(lang => (
+                        <div key={lang} className="flex items-start gap-1.5">
+                          <span className="text-[10px] font-semibold text-muted-foreground uppercase w-12 shrink-0 pt-0.5">{lang.slice(0,3)}</span>
+                          <span className="text-xs text-foreground break-words">
+                            {e.names[lang] || <span className="text-muted-foreground/50 italic">—</span>}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
