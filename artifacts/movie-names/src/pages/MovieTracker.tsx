@@ -6,11 +6,11 @@ const LANGUAGES = ["ARABIC", "GERMAN", "ENGLISH", "SPANISH", "FRENCH"] as const;
 type Language = typeof LANGUAGES[number];
 
 const TITLE_SUFFIX: Record<Language, string> = {
-  ARABIC: "شرح الفيلم باللغة العربية",
-  GERMAN: "Film auf Deutsch erklärt",
-  ENGLISH: "Movie Explained in English",
-  SPANISH: "Película explicada en español",
-  FRENCH: "Film expliqué en français",
+  ENGLISH: "Explained in English",
+  ARABIC: "ملخص فيلم - قصة الفيلم كاملة",
+  GERMAN: "Die komplette Geschichte erklärt",
+  SPANISH: "Resumen completo de la película",
+  FRENCH: "L'histoire complète du film",
 };
 
 interface MovieEntry {
@@ -307,9 +307,7 @@ export default function MovieTracker() {
                       const raw = entry.names[lang];
                       const isRtl = lang === "ARABIC";
                       const titled = raw.trim()
-                        ? isRtl
-                          ? `${TITLE_SUFFIX[lang]} - ${raw.trim()}`
-                          : `${raw.trim()} - ${TITLE_SUFFIX[lang]}`
+                        ? `${raw.trim()} ${TITLE_SUFFIX[lang]}`
                         : "";
                       return (
                         <td key={lang} className="px-2 py-2 align-middle">
@@ -492,7 +490,8 @@ function TitleCell({ value, made, onCopy, isRtl }: TitleCellProps) {
   const handleDoubleClick = () => {
     if (!value) return;
     onCopy();
-    setCopied(prev => !prev);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1200);
   };
 
   return (
